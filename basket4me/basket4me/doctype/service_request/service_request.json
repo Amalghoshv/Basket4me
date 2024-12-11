@@ -12,6 +12,7 @@
   "attended_date_time",
   "column_break_guay",
   "reported_date_time",
+  "project",
   "customer_details_section",
   "customer",
   "customer_address",
@@ -243,11 +244,23 @@
    "fieldname": "signaturecustomer",
    "fieldtype": "Signature",
    "label": "Signature(Customer)"
+  },
+  {
+   "fieldname": "project",
+   "fieldtype": "Link",
+   "label": "Project",
+   "options": "Project"
   }
  ],
  "index_web_pages_for_search": 1,
- "links": [],
- "modified": "2024-12-09 13:43:06.755345",
+ "links": [
+  {
+   "group": "Tasks",
+   "link_doctype": "Task",
+   "link_fieldname": "custom_service_request"
+  }
+ ],
+ "modified": "2024-12-11 14:33:20.637473",
  "modified_by": "Administrator",
  "module": "Basket4Me",
  "name": "Service Request",
