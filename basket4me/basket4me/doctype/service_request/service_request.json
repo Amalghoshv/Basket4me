@@ -7,12 +7,14 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
+  "general_details_tab",
   "general_details_section",
   "complaint_no",
   "attended_date_time",
   "column_break_guay",
   "reported_date_time",
   "project",
+  "customer_details_tab",
   "customer_details_section",
   "customer",
   "customer_address",
@@ -20,6 +22,7 @@
   "contact_person",
   "designation",
   "phone_number",
+  "work_details_tab",
   "work_details_section",
   "nature_of_work",
   "installed_on",
@@ -27,6 +30,7 @@
   "warranty_expiry",
   "column_break_kshb",
   "complaint_details",
+  "system_details_tab",
   "system_details_section",
   "system",
   "warrantyamccamc",
@@ -39,6 +43,7 @@
   "parts_replaced",
   "section_break_awhx",
   "additional_remarks",
+  "other_details_tab",
   "other_details_section",
   "engineer_name",
   "designation_engineer",
@@ -69,6 +74,7 @@
    "fieldtype": "Column Break"
   },
   {
+   "default": "now",
    "fieldname": "reported_date_time",
    "fieldtype": "Datetime",
    "label": "Reported Date Time"
@@ -250,6 +256,31 @@
    "fieldtype": "Link",
    "label": "Project",
    "options": "Project"
+  },
+  {
+   "fieldname": "general_details_tab",
+   "fieldtype": "Tab Break",
+   "label": "General Details"
+  },
+  {
+   "fieldname": "customer_details_tab",
+   "fieldtype": "Tab Break",
+   "label": "Customer Details"
+  },
+  {
+   "fieldname": "work_details_tab",
+   "fieldtype": "Tab Break",
+   "label": "Work Details"
+  },
+  {
+   "fieldname": "system_details_tab",
+   "fieldtype": "Tab Break",
+   "label": "System Details"
+  },
+  {
+   "fieldname": "other_details_tab",
+   "fieldtype": "Tab Break",
+   "label": "Other Details"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -260,7 +291,7 @@
    "link_fieldname": "custom_service_request"
   }
  ],
- "modified": "2024-12-11 14:33:20.637473",
+ "modified": "2024-12-18 17:34:36.623125",
  "modified_by": "Administrator",
  "module": "Basket4Me",
  "name": "Service Request",
