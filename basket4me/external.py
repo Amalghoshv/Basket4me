@@ -38,7 +38,7 @@ def sync_customers_from_external_api():
 
             customer_payload = {
                 "customer_name": store_name,
-                "custom_customer_code": customer.get("storeId"),
+                "custom_customer_code": customer.get("storeId")
                 "custom_store_mobile": customer.get("storeMobile"),
                 "custom_district": customer.get("storeDistrictName"),
                 "custom_custom_location": customer.get("storeLocationName"),
@@ -159,11 +159,6 @@ def sync_items_from_external_api():
 
 
 
-
-import frappe
-import requests
-import json
-from datetime import datetime
 
 @frappe.whitelist(allow_guest=True)
 def sync_sales_orders_from_external_api():
