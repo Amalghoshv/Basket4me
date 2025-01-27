@@ -38,7 +38,7 @@ def sync_customers_from_external_api():
 
             customer_payload = {
                 "customer_name": store_name,
-                "custom_customer_code": customer.get("storeId")
+                "custom_customer_code": customer.get("storeId"),
                 "custom_store_mobile": customer.get("storeMobile"),
                 "custom_district": customer.get("storeDistrictName"),
                 "custom_custom_location": customer.get("storeLocationName"),
@@ -253,3 +253,212 @@ def sync_sales_orders_from_external_api():
         frappe.log_error(f"Failed to fetch data: {e}", "Sync Sales Orders")
     except Exception as e:
         frappe.log_error(f"Error syncing sales orders: {e}", "Sync Sales Orders")
+
+
+#invoice
+@frappe.whitelist(allow_guest=True)
+def sync_sales_invoices_from_external_api():
+    external_api_url = "https://dev-api.basket4me.com:8443/api/businesserp/salesInvoices"
+    external_api_headers = {
+        "x-access-apikey": "X355D9FAC5E211EF80AB0A46B22E7688"
+    }
+    external_api_params = {
+        "storeCode": "BRUAE101S00101",
+        "accessDate": "2024-12-04",
+        "page": 1
+    }
+
+    try:
+        response = requests.get(external_api_url, headers=external_api_headers, params=external_api_params)
+        response.raise_for_status()
+        data = response.json()
+
+        if not data or "data" not in data:
+            frappe.log_error("No data received from external API", "Sync Sales Invoices")
+            return
+
+        for invoice in data["data"]:
+            tran_ref_no = invoice.get("tranRefNo")
+
+            if not tran_ref_no:
+                frappe.log_error("Missing 'tranRefNo' in sales invoice data", "Sync Sales Invoices")
+                continue
+
+            bStoreId = invoice.get("bStoreId")
+
+            if not bStoreId:
+                frappe.log_error(f"Missing 'bStoreId' in sales invoice {tran_ref_no}", "Sync Sales Invoices")
+                continue
+
+            customer = frappe.db.get_value(
+                "Customer", {"custom_customer_code": bStoreId}, ["name"], as_dict=True
+            )
+
+            if not customer:
+                frappe.log_error(f"Customer with custom_customer_code {bStoreId} not found", "Sync Sales Invoices")
+                continue
+
+            try:
+                posting_date = invoice.get("tranDate", "").split("T")[0]
+                sales_invoice_payload = {
+                    "customer": customer["name"],
+                    "posting_date": posting_date,
+                    "due_date": posting_date,
+                    "total": sum([product['amount'] for product in json.loads(invoice['products'])]),
+                    "net_total": sum([product['amount'] for product in json.loads(invoice['products'])]),
+                    "total_taxes_and_charges": 0,
+                    "grand_total": sum([product['amount'] for product in json.loads(invoice['products'])]),
+                    "items": [],
+                    "remarks": tran_ref_no
+                }
+
+                for product in json.loads(invoice['products']):
+                    item_code = product['prodName']
+                    if not frappe.db.exists("Item", item_code):
+                        frappe.log_error(f"Item {item_code} not found. Skipping invoice {tran_ref_no}", "Sync Sales Invoices")
+                        break
+
+                    item = {
+                        "item_code": item_code,
+                        "qty": product['quantity'],
+                        "rate": product['tranSPPrice'],
+                        "amount": product['amount']
+                    }
+                    sales_invoice_payload["items"].append(item)
+                else:
+                    existing_invoice = frappe.db.get_value(
+                        "Sales Invoice", {"remarks": tran_ref_no}, ["name"], as_dict=True
+                    )
+
+                    if existing_invoice:
+                        sales_invoice_doc = frappe.get_doc("Sales Invoice", existing_invoice["name"])
+                        changes_made = False
+
+                        for key, value in sales_invoice_payload.items():
+                            if sales_invoice_doc.get(key) != value:
+                                sales_invoice_doc.set(key, value)
+                                changes_made = True
+
+                        if changes_made:
+                            sales_invoice_doc.save(ignore_permissions=True)
+                            frappe.db.commit()
+                    else:
+                        sales_invoice_doc = frappe.get_doc({
+                            "doctype": "Sales Invoice",
+                            **sales_invoice_payload
+                        })
+                        sales_invoice_doc.insert(ignore_permissions=True)
+                        frappe.db.commit()
+
+            except Exception as inner_e:
+                frappe.log_error(f"Error processing invoice {tran_ref_no}: {inner_e}", "Sync Sales Invoices")
+
+    except requests.exceptions.RequestException as e:
+        frappe.log_error(f"Failed to fetch data: {e}", "Sync Sales Invoices")
+    except Exception as e:
+        frappe.log_error(f"Error syncing sales invoices: {e}", "Sync Sales Invoices")
+
+#payment entry
+
+@frappe.whitelist(allow_guest=True)
+def sync_payment_entries_from_external_api():
+    external_api_url = "https://dev-api.basket4me.com:8443/api/businesserp/receipts"
+    external_api_headers = {
+        "x-access-apikey": "X355D9FAC5E211EF80AB0A46B22E7688"
+    }
+    external_api_params = {
+        "storeCode": "BRUAE101S00101",
+        "accessDate": "2024-12-04",
+        "page": 1
+    }
+
+    try:
+        response = requests.get(external_api_url, headers=external_api_headers, params=external_api_params)
+        response.raise_for_status()
+        data = response.json()
+
+        if not data or "data" not in data:
+            frappe.log_error("No data received from external API for payment entries", "Sync Payment Entries")
+            return
+
+        for receipt in data["data"]:
+            tran_ref_no = receipt.get("tranRefNo")
+
+            if not tran_ref_no:
+                frappe.log_error("Missing 'tranRefNo' in payment receipt data", "Sync Payment Entries")
+                continue
+
+            customer = frappe.db.get_value(
+                "Customer", {"custom_customer_code": receipt.get("bStoreId")}, ["name"], as_dict=True
+            )
+
+            if not customer:
+                frappe.log_error(f"Customer with custom_customer_code {receipt.get('bStoreId')} not found", "Sync Payment Entries")
+                continue
+
+            transaction_currency = receipt.get("currencyCD", "").strip()
+            default_currency = frappe.defaults.get_global_default("currency")
+
+            exchange_rate = 1.0
+            if transaction_currency and transaction_currency != default_currency:
+                exchange_rate = frappe.db.get_value(
+                    "Currency Exchange",
+                    {"from_currency": transaction_currency, "to_currency": default_currency},
+                    "exchange_rate"
+                )
+                if not exchange_rate:
+                    frappe.log_error(
+                        f"Exchange rate not found for {transaction_currency} to {default_currency}",
+                        "Sync Payment Entries"
+                    )
+                    continue
+
+            try:
+                payment_entry_payload = {
+                    "posting_date": receipt.get("tranDate", "").split("T")[0],
+                    "party_type": "Customer",
+                    "party": customer["name"],
+                    "payment_type": "Receive",
+                    "paid_amount": receipt.get("amountPaid"),
+                    "received_amount": receipt.get("amountPaid") * exchange_rate,
+                    "source_exchange_rate": 1.0,
+                    "target_exchange_rate": exchange_rate,
+                    "reference_no": tran_ref_no,
+                    "reference_date": receipt.get("tranDate", "").split("T")[0],
+                    "remarks": receipt.get("remarks"),
+                    "mode_of_payment": receipt.get("paymentType").capitalize(),
+                    "currency": transaction_currency or default_currency,
+                    "paid_to": "Cash - E"  
+                }
+
+                existing_payment_entry = frappe.db.get_value(
+                    "Payment Entry", {"reference_no": tran_ref_no}, ["name"], as_dict=True
+                )
+
+                if existing_payment_entry:
+                    payment_entry_doc = frappe.get_doc("Payment Entry", existing_payment_entry["name"])
+                    changes_made = False
+
+                    for key, value in payment_entry_payload.items():
+                        if payment_entry_doc.get(key) != value:
+                            payment_entry_doc.set(key, value)
+                            changes_made = True
+
+                    if changes_made:
+                        payment_entry_doc.save(ignore_permissions=True)
+                        frappe.db.commit()
+                else:
+                    payment_entry_doc = frappe.get_doc({
+                        "doctype": "Payment Entry",
+                        **payment_entry_payload
+                    })
+                    payment_entry_doc.insert(ignore_permissions=True)
+                    frappe.db.commit()
+
+            except Exception as inner_e:
+                frappe.log_error(f"Error processing payment receipt {tran_ref_no}: {inner_e}", "Sync Payment Entries")
+
+    except requests.exceptions.RequestException as e:
+        frappe.log_error(f"Failed to fetch data: {e}", "Sync Payment Entries")
+    except Exception as e:
+        frappe.log_error(f"Error syncing payment entries: {e}", "Sync Payment Entries")
