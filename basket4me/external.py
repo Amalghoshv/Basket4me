@@ -84,7 +84,7 @@ def sync_items_from_external_api():
     }
     external_api_params = {
         "storeCode": "BRIND801S00101",
-        "accessDate": "2024-12-29",
+        "accessDate": "2025-03-25",
         "page": 1 
     }
     
