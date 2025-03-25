@@ -6,7 +6,7 @@ from datetime import datetime
 
 @frappe.whitelist(allow_guest=True)
 def sync_customers_from_external_api():
-    external_api_url = "https://dev-api.basket4me.com:8443/api/businesserp/customers"
+    external_api_url = " https://api.basket4me.com:8443/api/customers"
     external_api_headers = {
         "x-access-apikey": "X355D9FAC5E211EF80AB0A46B22E7688"
     }
@@ -77,13 +77,13 @@ def sync_customers_from_external_api():
 
 @frappe.whitelist(allow_guest=True)
 def sync_items_from_external_api():
-    external_api_url = "https://dev-api.basket4me.com:8443/api/businesserp/products"
+    external_api_url = " https://api.basket4me.com:8443/api/products"
     external_api_headers = {
         "accept": "application/json",
         "x-access-apikey": "X355D9FAC5E211EF80AB0A46B22E7688"
     }
     external_api_params = {
-        "storeCode": "BRUAE101S00101",
+        "storeCode": "BRIND801S00101",
         "accessDate": "2024-12-29",
         "page": 1 
     }
@@ -162,12 +162,12 @@ def sync_items_from_external_api():
 
 @frappe.whitelist(allow_guest=True)
 def sync_sales_orders_from_external_api():
-    external_api_url = "https://dev-api.basket4me.com:8443/api/businesserp/salesOrders"
+    external_api_url = " https://api.basket4me.com:8443/api/salesOrders"
     external_api_headers = {
         "x-access-apikey": "X355D9FAC5E211EF80AB0A46B22E7688"
     }
     external_api_params = {
-        "storeCode": "BRUAE101S00101",
+        "storeCode": "BRIND801S00101",
         "accessDate": "2024-12-04",
         "page": 1
     }
@@ -258,12 +258,12 @@ def sync_sales_orders_from_external_api():
 #invoice
 @frappe.whitelist(allow_guest=True)
 def sync_sales_invoices_from_external_api():
-    external_api_url = "https://dev-api.basket4me.com:8443/api/businesserp/salesInvoices"
+    external_api_url = " https://api.basket4me.com:8443/api/salesInvoices"
     external_api_headers = {
         "x-access-apikey": "X355D9FAC5E211EF80AB0A46B22E7688"
     }
     external_api_params = {
-        "storeCode": "BRUAE101S00101",
+        "storeCode": "BRIND801S00101",
         "accessDate": "2024-12-04",
         "page": 1
     }
@@ -362,12 +362,12 @@ def sync_sales_invoices_from_external_api():
 
 @frappe.whitelist(allow_guest=True)
 def sync_payment_entries_from_external_api():
-    external_api_url = "https://dev-api.basket4me.com:8443/api/businesserp/receipts"
+    external_api_url = " https://api.basket4me.com:8443/api/receipts"
     external_api_headers = {
         "x-access-apikey": "X355D9FAC5E211EF80AB0A46B22E7688"
     }
     external_api_params = {
-        "storeCode": "BRUAE101S00101",
+        "storeCode": "BRIND801S00101",
         "accessDate": "2024-12-04",
         "page": 1
     }
