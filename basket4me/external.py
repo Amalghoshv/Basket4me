@@ -6,7 +6,7 @@ from datetime import datetime
 
 @frappe.whitelist(allow_guest=True)
 def sync_customers_from_external_api():
-    external_api_url = " https://api.basket4me.com:8443/api/customers"
+    external_api_url = " https://prod-api.basket4me.com:8443/api/businesserp/customers"
     external_api_headers = {
         "x-access-apikey": "DBD4C1E677FEAA8E355FB45FE25D2"
     }
@@ -77,7 +77,7 @@ def sync_customers_from_external_api():
 
 @frappe.whitelist(allow_guest=True)
 def sync_items_from_external_api():
-    external_api_url = " https://api.basket4me.com:8443/api/products"
+    external_api_url = " https://prod-api.basket4me.com:8443/api/businesserp/products"
     external_api_headers = {
         "accept": "application/json",
         "x-access-apikey": "DBD4C1E677FEAA8E355FB45FE25D2"
@@ -162,7 +162,7 @@ def sync_items_from_external_api():
 
 @frappe.whitelist(allow_guest=True)
 def sync_sales_orders_from_external_api():
-    external_api_url = " https://api.basket4me.com:8443/api/salesOrders"
+    external_api_url = " https://prod-api.basket4me.com:8443/api/businesserp/salesOrders"
     external_api_headers = {
         "x-access-apikey": "DBD4C1E677FEAA8E355FB45FE25D2"
     }
@@ -258,7 +258,7 @@ def sync_sales_orders_from_external_api():
 #invoice
 @frappe.whitelist(allow_guest=True)
 def sync_sales_invoices_from_external_api():
-    external_api_url = "https://api.basket4me.com:8443/api/salesInvoices"
+    external_api_url = "https://prod-api.basket4me.com:8443/api/businesserp/salesInvoices"
     external_api_headers = {
         "x-access-apikey": "DBD4C1E677FEAA8E355FB45FE25D2"
     }
@@ -362,7 +362,7 @@ def sync_sales_invoices_from_external_api():
 
 @frappe.whitelist(allow_guest=True)
 def sync_payment_entries_from_external_api():
-    external_api_url = "https://api.basket4me.com:8443/api/receipts"
+    external_api_url = "https://prod-api.basket4me.com:8443/api/businesserp/receipts"
     external_api_headers = {
         "x-access-apikey": "DBD4C1E677FEAA8E355FB45FE25D2"
     }
