@@ -11,7 +11,7 @@ def sync_customers_from_external_api():
         "x-access-apikey": "DBD4C1E677FEAA8E355FB45FE25D2"
     }
     external_api_params = {
-        "storeCode": "BRUAE101S00101",
+        "storeCode": "BRIND801S00101",
         "accessDate": "2024-12-29",
         "page": 1
     }
