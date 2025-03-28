@@ -10,6 +10,7 @@ from datetime import datetime
 def sync_customers_from_external_api():
     external_api_url = " https://prod-api.basket4me.com:8443/api/businesserp/customers"
     external_api_headers = {
+        "accept": "application/json",
         "x-access-apikey": "DBD4C1E677FEAA8E355FB45FE25D2"
     }
     external_api_params = {
