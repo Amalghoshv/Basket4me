@@ -7,15 +7,15 @@ from datetime import datetime
 # BRIND801S00101
 
 @frappe.whitelist(allow_guest=True)
-def sync_customers_from_external_api(store_code, x_access_apikey, access_date, page):
+def sync_customers_from_external_api():
     external_api_url = " https://prod-api.basket4me.com:8443/api/businesserp/customers"
     external_api_headers = {
-        "x-access-apikey": x_access_apikey
+        "x-access-apikey": "DBD4C1E677FEAA8E355FB45FE25D2"
     }
     external_api_params = {
-        "storeCode": store_code,  # Ensure store_code is passed as an argument
-        "accessDate": access_date,
-        "page": page
+        "storeCode": "BRIND801S00101",  # Ensure store_code is passed as an argument
+        "accessDate": datetime.now(),  # Use current date for access_date
+        "page": 1
     }
 
     try:
