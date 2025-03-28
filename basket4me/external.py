@@ -3,17 +3,19 @@ import requests
 import json
 from datetime import datetime
 
+# DBD4C1E677FEAA8E355FB45FE25D2
+# BRIND801S00101
 
 @frappe.whitelist(allow_guest=True)
-def sync_customers_from_external_api():
+def sync_customers_from_external_api(store_code, x_access_apikey, access_date, page):
     external_api_url = " https://prod-api.basket4me.com:8443/api/businesserp/customers"
     external_api_headers = {
-        "x-access-apikey": "DBD4C1E677FEAA8E355FB45FE25D2"
+        "x-access-apikey": x_access_apikey
     }
     external_api_params = {
-        "storeCode": "BRIND801S00101",
-        "accessDate": "2024-12-29",
-        "page": 1
+        "storeCode": store_code,  # Ensure store_code is passed as an argument
+        "accessDate": access_date,
+        "page": page
     }
 
     try:
@@ -38,13 +40,23 @@ def sync_customers_from_external_api():
 
             customer_payload = {
                 "customer_name": store_name,
+                "custom_displayname": customer.get("storeDisplayName"),
                 "custom_customer_code": customer.get("storeId"),
+                "custom_route": customer.get("routeCode"),
+                "custom_route_sequence": customer.get("storeSequence"),
+                "custom_customer_category": customer.get("storeCatId"),
                 "custom_store_mobile": customer.get("storeMobile"),
                 "custom_district": customer.get("storeDistrictName"),
                 "custom_custom_location": customer.get("storeLocationName"),
                 "custom_state": customer.get("storeStateName"),
                 "custom_pin_code": customer.get("storePinCode"),
-                "custom_name_of_contact_person": customer.get("storeContactPerson")
+                "tax_id": customer.get("storeGSTNo"),
+                "tax_category":customer.get("taxCategory"),
+                "primary_address":customer.get("storeAddress"),
+                "customer_primary_contact":customer.get("storeContactPerson"),
+                "mobile_no":customer.get("storeMobile"),
+                "custom_latitude":customer.get("storeLatitude"),
+                "custom_longitude":customer.get("storeLongitude")
             }
 
             if existing_customer:
@@ -158,7 +170,7 @@ def sync_items_from_external_api():
 
 
 
-
+#BRIND801S00101
 
 @frappe.whitelist(allow_guest=True)
 def sync_sales_orders_from_external_api():
