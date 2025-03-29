@@ -131,7 +131,7 @@ def sync_items_from_external_api():
                 "item_group": product.get("itemGroupName"),
                 "description": product.get("prodDetailDesc"),
                 "brand": product.get("brandName"),
-                "gst_hsn_code": product.get('prodHSCode'),
+                "gst_hsn_code": 22029920,
                 "custom_b4m_main_category": product.get("mainCategoryName"), 
                 "custom_b4m_sub_category": product.get("categoryName"), 
                 "description": product.get("prodDetailDesc"),
