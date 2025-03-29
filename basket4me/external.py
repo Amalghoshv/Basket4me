@@ -131,11 +131,12 @@ def sync_items_from_external_api():
                 "item_group": product.get("itemGroupName"),
                 "description": product.get("prodDetailDesc"),
                 "brand": product.get("brandName"),
+                "gst_hsn_code": product.get('prodHSCode'),
                 "custom_b4m_main_category": product.get("mainCategoryName"), 
                 "custom_b4m_sub_category": product.get("categoryName"), 
                 "description": product.get("prodDetailDesc"),
-                "stock_uom": stock_uom,
-                "gst_hsn_code":  "22029920"
+                "stock_uom": stock_uom
+                
                 }
 
                 existing_item = frappe.db.get_value("Item", {"item_code": item_code}, ["name"], as_dict=True)
