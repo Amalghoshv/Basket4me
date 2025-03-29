@@ -97,7 +97,7 @@ def sync_items_from_external_api():
     }
     external_api_params = {
         "storeCode": "BRIND801S00101",
-        "accessDate": "2025-03-25",
+        "accessDate": datetime.now(),
         "page": 1 
     }
     
@@ -119,25 +119,22 @@ def sync_items_from_external_api():
                 break
 
             for product in data["data"]:
-                item_code = product.get("prodCode")  
-                item_name = product.get("prodName")  
-                description = product.get("prodDesc") or product.get("prodDetailDesc") 
-                brand = product.get("brandName") 
-                main_category = product.get("mainCategoryName")  
-                category = product.get("categoryName") 
-
+               
                 units = frappe.parse_json(product.get("units", "[]"))
                 base_unit = next((unit for unit in units if unit.get("baseUnit") == 1), {})
                 stock_uom = base_unit.get("unitName") or "Nos"  
 
                 item_payload = {
-                    "item_code": item_code,
-                    "item_name": item_name,
-                    "description": description,
-                    "brand": brand,
-                    "item_group": main_category,
-                    "stock_uom": stock_uom,
-                    "custom_category": category,  
+                "custom_b4m_prodid"= product.get("prodId")
+                "item_code" = product.get("prodCode")  
+                "item_name" = product.get("prodName")  
+                "description" = product.get("prodDesc") or product.get("prodDetailDesc") 
+                "brand" = product.get("brandName") 
+                "custom_b4m_main_category" = product.get("mainCategoryName")  
+                "custom_b4m_sub_category" = product.get("categoryName") 
+                "description"=product.get("prodDetailDesc")
+                "stock_uom": stock_uom
+              
                 }
 
                 existing_item = frappe.db.get_value("Item", {"item_code": item_code}, ["name"], as_dict=True)
