@@ -182,7 +182,7 @@ def sync_sales_orders_from_external_api():
     }
     external_api_params = {
         "storeCode": "BRIND801S00101",
-        "accessDate": "2024-12-04",
+        "accessDate": "2025-03-01",
         "page": 1
     }
 
@@ -197,7 +197,8 @@ def sync_sales_orders_from_external_api():
 
         for order in data["data"]:
             tran_ref_no = order.get("tranRefNo")
-
+            tran_Date = order.get("tranDate")
+            tran_deliveryDate = order.get("deliveryDate")
             if not tran_ref_no:
                 frappe.log_error("Missing 'tranRefNo' in sales order data", "Sync Sales Orders")
                 continue
@@ -217,6 +218,9 @@ def sync_sales_orders_from_external_api():
                 continue
 
             today_date = datetime.today().strftime("%Y-%m-%d")  
+
+            
+
             sales_order_payload = {
                 "customer": customer["name"],  
                 "posting_date": today_date, 
@@ -227,7 +231,9 @@ def sync_sales_orders_from_external_api():
                 "total_taxes_and_charges": 0, 
                 "grand_total": sum([product['amount'] for product in json.loads(order['products'])]),
                 "items": [],
-                "po_no": tran_ref_no  
+                "po_no": tran_ref_no ,
+
+                "po_date": tran_Date
             }
 
             for product in json.loads(order['products']):
