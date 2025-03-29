@@ -125,15 +125,15 @@ def sync_items_from_external_api():
                 stock_uom = base_unit.get("unitName") or "Nos"  
 
                 item_payload = {
-                "custom_b4m_prodid"= product.get("prodId")
-                "item_code" = product.get("prodCode")  
-                "item_name" = product.get("prodName")  
-                "description" = product.get("prodDesc") or product.get("prodDetailDesc") 
-                "brand" = product.get("brandName") 
-                "custom_b4m_main_category" = product.get("mainCategoryName")  
-                "custom_b4m_sub_category" = product.get("categoryName") 
-                "description"=product.get("prodDetailDesc")
-                "stock_uom": stock_uom
+                "custom_b4m_prodid" = product.get("prodId"),
+                "item_code" = product.get("prodCode"),
+                "item_name" = product.get("prodName"), 
+                "description" = product.get("prodDetailDesc"),
+                "brand" = product.get("brandName"),
+                "custom_b4m_main_category" = product.get("mainCategoryName"), 
+                "custom_b4m_sub_category" = product.get("categoryName"), 
+                "description" = product.get("prodDetailDesc"),
+                "stock_uom" = stock_uom
               
                 }
 
