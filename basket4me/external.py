@@ -128,7 +128,7 @@ def sync_items_from_external_api():
                 "custom_b4m_prodid": product.get("prodId"),
                 "item_code": product.get("prodCode"),
                 "item_name": product.get("prodName"), 
-                "item_group": product.get("itemGroupName")
+                "item_group": product.get("itemGroupName"),
                 "description": product.get("prodDetailDesc"),
                 "brand": product.get("brandName"),
                 "custom_b4m_main_category": product.get("mainCategoryName"), 
