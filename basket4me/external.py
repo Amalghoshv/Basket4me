@@ -123,19 +123,19 @@ def sync_items_from_external_api():
                 units = frappe.parse_json(product.get("units", "[]"))
                 base_unit = next((unit for unit in units if unit.get("baseUnit") == 1), {})
                 stock_uom = base_unit.get("unitName") or "Nos"  
-                iteGroup=
                 item_payload = {
 
                 "custom_b4m_prodid": product.get("prodId"),
                 "item_code": product.get("prodCode"),
                 "item_name": product.get("prodName"), 
+                "item_group": product.get("itemGroupName")
                 "description": product.get("prodDetailDesc"),
                 "brand": product.get("brandName"),
                 "custom_b4m_main_category": product.get("mainCategoryName"), 
                 "custom_b4m_sub_category": product.get("categoryName"), 
                 "description": product.get("prodDetailDesc"),
-                "stock_uom": stock_uom,
-                "item_group": product.get("itemGroupName")
+                "stock_uom": stock_uom
+                
                 }
 
                 existing_item = frappe.db.get_value("Item", {"item_code": item_code}, ["name"], as_dict=True)
