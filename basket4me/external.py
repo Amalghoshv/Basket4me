@@ -117,7 +117,7 @@ def sync_items_from_external_api():
 
             if not data["data"]:
                 break
-
+# "custom_b4m_main_category": product.get("mainCategoryName"), 
             for product in data["data"]:
                
                 units = frappe.parse_json(product.get("units", "[]"))
@@ -131,7 +131,7 @@ def sync_items_from_external_api():
                 "item_group": product.get("itemGroupName"),
                 "description": product.get("prodDetailDesc"),
                 "brand": product.get("brandName"),
-                "custom_b4m_main_category": product.get("mainCategoryName"), 
+                
                 "custom_b4m_sub_category": product.get("categoryName"), 
                 "description": product.get("prodDetailDesc"),
                 "stock_uom": stock_uom
