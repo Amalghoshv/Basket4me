@@ -152,13 +152,13 @@ app_license = "mit"
 # }
 scheduler_events = {
     "cron": {
-        "*/2 * * * *": [
+        "*/3 * * * *": [
             "basket4me.external.sync_customers_from_external_api"
         ],
         "*/4 * * * *": [
             "basket4me.external.sync_items_from_external_api"
         ],
-         "*/3 * * * *": [
+         "*/2 * * * *": [
             "basket4me.external.sync_sales_orders_from_external_api"
         ],
          "*/3 * * * *": [
