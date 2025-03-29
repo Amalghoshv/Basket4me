@@ -135,7 +135,7 @@ def sync_items_from_external_api():
                 "custom_b4m_sub_category": product.get("categoryName"), 
                 "description": product.get("prodDetailDesc"),
                 "stock_uom": stock_uom,
-                "gst_hsn_code": "22029920"
+                "gst_hsn_code":  "22029920"
                 }
 
                 existing_item = frappe.db.get_value("Item", {"item_code": item_code}, ["name"], as_dict=True)
