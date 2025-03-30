@@ -7,6 +7,107 @@ from datetime import datetime
 # BRIND801S00101
 
 @frappe.whitelist(allow_guest=True)
+def sync_sales_orders_from_external_api():
+    external_api_url = "https://prod-api.basket4me.com:8443/api/businesserp/salesOrders"
+    external_api_headers = {
+        "x-access-apikey": "DBD4C1E677FEAA8E355FB45FE25D2"
+    }
+    external_api_params = {
+        "storeCode": "BRIND801S00101",
+        "accessDate": "2025-03-01",
+        "page": 1
+    }
+
+    try:
+        response = requests.get(external_api_url, headers=external_api_headers, params=external_api_params)
+        response.raise_for_status()  
+        data = response.json()
+
+        if not data or "data" not in data:
+            frappe.log_error("No data received from external API", "Sync Sales Orders")
+            return
+
+        for order in data["data"]:
+            tran_ref_no = order.get("tranRefNo")
+            tran_Date = order.get("tranDate")
+            tran_deliveryDate = order.get("deliveryDate")
+            if not tran_ref_no:
+                frappe.log_error("Missing 'tranRefNo' in sales order data", "Sync Sales Orders")
+                continue
+
+            bStoreId = order.get("bStoreId")
+
+            if not bStoreId:
+                frappe.log_error(f"Missing 'bStoreId' in sales order {tran_ref_no}", "Sync Sales Orders")
+                continue
+
+            customer = frappe.db.get_value(
+                "Customer", {"custom_customer_code": bStoreId}, ["name"], as_dict=True
+            )
+
+            if not customer:
+                frappe.log_error(f"Customer with custom_customer_code {bStoreId} not found", "Sync Sales Orders")
+                continue
+
+            today_date = datetime.today().strftime("%Y-%m-%d")  
+
+            
+
+            sales_order_payload = {
+                "customer": customer["name"],  
+                "posting_date": today_date, 
+                "delivery_date": today_date, 
+                "total": sum([product['amount'] for product in json.loads(order['products'])]),
+                "discount_amount": 0, 
+                "net_total": sum([product['amount'] for product in json.loads(order['products'])]),
+                "total_taxes_and_charges": 0, 
+                "grand_total": sum([product['amount'] for product in json.loads(order['products'])]),
+                "items": [],
+                "po_no": tran_ref_no ,
+
+                "po_date": tran_Date
+            }
+
+            for product in json.loads(order['products']):
+                item = {
+                    "item_code": product['prodName'], 
+                    "qty": product['quantity'],
+                    "rate": product['tranSPPrice'],
+                    "amount": product['amount']
+                }
+                sales_order_payload["items"].append(item)
+
+            existing_order = frappe.db.get_value(
+                "Sales Order", {"po_no": tran_ref_no}, ["name"], as_dict=True
+            )
+
+            if existing_order:
+                sales_order_doc = frappe.get_doc("Sales Order", existing_order["name"])
+                changes_made = False
+
+                for key, value in sales_order_payload.items():
+                    if sales_order_doc.get(key) != value:
+                        sales_order_doc.set(key, value)
+                        changes_made = True
+
+                if changes_made:
+                    sales_order_doc.save(ignore_permissions=True)
+                    frappe.db.commit()
+            else:
+                sales_order_doc = frappe.get_doc({
+                    "doctype": "Sales Order",
+                    **sales_order_payload
+                })
+                sales_order_doc.insert(ignore_permissions=True)
+                frappe.db.commit()
+
+    except requests.exceptions.RequestException as e:
+        frappe.log_error(f"Failed to fetch data: {e}", "Sync Sales Orders")
+    except Exception as e:
+        frappe.log_error(f"Error syncing sales orders: {e}", "Sync Sales Orders")
+
+
+@frappe.whitelist(allow_guest=True)
 def sync_customers_from_external_api():
     external_api_url = " https://prod-api.basket4me.com:8443/api/businesserp/customers"
     external_api_headers = {
@@ -171,105 +272,6 @@ def sync_items_from_external_api():
         frappe.log_error(f"Error syncing items: {e}", "Sync Items")
 
 
-@frappe.whitelist(allow_guest=True)
-def sync_sales_orders_from_external_api():
-    external_api_url = "https://prod-api.basket4me.com:8443/api/businesserp/salesOrders"
-    external_api_headers = {
-        "x-access-apikey": "DBD4C1E677FEAA8E355FB45FE25D2"
-    }
-    external_api_params = {
-        "storeCode": "BRIND801S00101",
-        "accessDate": "2025-03-01",
-        "page": 1
-    }
-
-    try:
-        response = requests.get(external_api_url, headers=external_api_headers, params=external_api_params)
-        response.raise_for_status()  
-        data = response.json()
-
-        if not data or "data" not in data:
-            frappe.log_error("No data received from external API", "Sync Sales Orders")
-            return
-
-        for order in data["data"]:
-            tran_ref_no = order.get("tranRefNo")
-            tran_Date = order.get("tranDate")
-            tran_deliveryDate = order.get("deliveryDate")
-            if not tran_ref_no:
-                frappe.log_error("Missing 'tranRefNo' in sales order data", "Sync Sales Orders")
-                continue
-
-            bStoreId = order.get("bStoreId")
-
-            if not bStoreId:
-                frappe.log_error(f"Missing 'bStoreId' in sales order {tran_ref_no}", "Sync Sales Orders")
-                continue
-
-            customer = frappe.db.get_value(
-                "Customer", {"custom_customer_code": bStoreId}, ["name"], as_dict=True
-            )
-
-            if not customer:
-                frappe.log_error(f"Customer with custom_customer_code {bStoreId} not found", "Sync Sales Orders")
-                continue
-
-            today_date = datetime.today().strftime("%Y-%m-%d")  
-
-            
-
-            sales_order_payload = {
-                "customer": customer["name"],  
-                "posting_date": today_date, 
-                "delivery_date": today_date, 
-                "total": sum([product['amount'] for product in json.loads(order['products'])]),
-                "discount_amount": 0, 
-                "net_total": sum([product['amount'] for product in json.loads(order['products'])]),
-                "total_taxes_and_charges": 0, 
-                "grand_total": sum([product['amount'] for product in json.loads(order['products'])]),
-                "items": [],
-                "po_no": tran_ref_no ,
-
-                "po_date": tran_Date
-            }
-
-            for product in json.loads(order['products']):
-                item = {
-                    "item_code": product['prodName'], 
-                    "qty": product['quantity'],
-                    "rate": product['tranSPPrice'],
-                    "amount": product['amount']
-                }
-                sales_order_payload["items"].append(item)
-
-            existing_order = frappe.db.get_value(
-                "Sales Order", {"po_no": tran_ref_no}, ["name"], as_dict=True
-            )
-
-            if existing_order:
-                sales_order_doc = frappe.get_doc("Sales Order", existing_order["name"])
-                changes_made = False
-
-                for key, value in sales_order_payload.items():
-                    if sales_order_doc.get(key) != value:
-                        sales_order_doc.set(key, value)
-                        changes_made = True
-
-                if changes_made:
-                    sales_order_doc.save(ignore_permissions=True)
-                    frappe.db.commit()
-            else:
-                sales_order_doc = frappe.get_doc({
-                    "doctype": "Sales Order",
-                    **sales_order_payload
-                })
-                sales_order_doc.insert(ignore_permissions=True)
-                frappe.db.commit()
-
-    except requests.exceptions.RequestException as e:
-        frappe.log_error(f"Failed to fetch data: {e}", "Sync Sales Orders")
-    except Exception as e:
-        frappe.log_error(f"Error syncing sales orders: {e}", "Sync Sales Orders")
 
 
 #invoice
