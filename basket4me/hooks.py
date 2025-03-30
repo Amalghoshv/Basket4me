@@ -150,14 +150,15 @@ app_license = "mit"
 # 		"basket4me.tasks.monthly"
 # 	],sync_payment_entries_from_external_api
 # }
+
+#        "*/3 * * * *": [
+#           "basket4me.external.sync_customers_from_external_api"
+#        ],
+#        "*/4 * * * *": [
+#            "basket4me.external.sync_items_from_external_api"
+#        ],
 scheduler_events = {
     "cron": {
-        "*/3 * * * *": [
-            "basket4me.external.sync_customers_from_external_api"
-        ],
-        "*/4 * * * *": [
-            "basket4me.external.sync_items_from_external_api"
-        ],
          "*/2 * * * *": [
             "basket4me.external.sync_sales_orders_from_external_api"
         ],
