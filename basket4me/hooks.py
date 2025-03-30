@@ -165,7 +165,7 @@ scheduler_events = {
          "*/3 * * * *": [
             "basket4me.external.sync_sales_invoices_from_external_api"
         ],
-         "*/3 * * * *": [
+         "*/4 * * * *": [
             "basket4me.external.sync_payment_entries_from_external_api"
         ]
     }
