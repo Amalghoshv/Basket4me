@@ -171,12 +171,9 @@ def sync_items_from_external_api():
         frappe.log_error(f"Error syncing items: {e}", "Sync Items")
 
 
-
-#BRIND801S00101
-
 @frappe.whitelist(allow_guest=True)
 def sync_sales_orders_from_external_api():
-    external_api_url = " https://prod-api.basket4me.com:8443/api/businesserp/salesOrders"
+    external_api_url = "https://prod-api.basket4me.com:8443/api/businesserp/salesOrders"
     external_api_headers = {
         "x-access-apikey": "DBD4C1E677FEAA8E355FB45FE25D2"
     }
